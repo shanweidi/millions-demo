@@ -1,0 +1,30 @@
+server:
+  port: 8083
+
+spring:
+  profiles:
+    active: prod
+  application:
+    name: millions-demo
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 1024MB
+
+  main:
+    allow-circular-references: true
+
+mybatis-plus:
+  configuration:
+    jdbc-type-for-null: 'null'
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImp
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  global-config:
+    db-config:
+      id-type: INPUT
+
+logging:
+  level:
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+
+

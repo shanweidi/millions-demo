@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: hruser
+    password: hdys654321
+    url: jdbc:oracle:thin:@125.122.96.138:1521/ORCL
+
+xft:
+  save-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeemovement/entry/save/v1/batch
+  add-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeeprofile/employee/staffGeneralApi/addStaff
+  query-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeeprofile/employee/external/api/query/staffInfo
+  edit-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeeprofile/employee/staff-general-api/modify-staff
+  field-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeeprofile/openapi/employee/setting-api/customer-field/customer-option/api-batch-save
+  query-test-url: https://api.cmburl.cn:8065/xfthrm/hrm2uat/xft-employeeprofile/openapi/employee/setting-api/find-customer-field
+  app-id: 3839a625-9ace-4219-98da-f03d8335dfe4
+  company-id: XFB21860
+  authority-secret: 00bff1c4507893d731c762f110227b24b9a64db5460f088209068b37fae00a323a
