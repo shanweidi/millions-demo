@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
  **/
 @ControllerAdvice(assignableTypes = {com.zhouyu.controller.FromXftController.class})
 public class DecryptRequestBodyAdvice extends RequestBodyAdviceAdapter {
+    private static final AES aes = SecureUtil.aes("5460f088209068b3".getBytes());
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         return true;
@@ -32,8 +33,6 @@ public class DecryptRequestBodyAdvice extends RequestBodyAdviceAdapter {
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) throws IOException {
         String requestBody = StrUtil.utf8Str(IoUtil.readBytes(inputMessage.getBody()));
-        byte[] secret = "5460f088209068b3".getBytes();
-        AES aes = SecureUtil.aes(secret);
         try {
             String decryptedData = aes.decryptStr(requestBody);
             return new HttpInputMessage() {
