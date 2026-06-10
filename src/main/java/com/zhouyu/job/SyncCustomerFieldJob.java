@@ -70,6 +70,9 @@ public class SyncCustomerFieldJob extends HengdianJob {
             return;
         }
         for (TMapFieldDO field : fields) {
+            if (StringUtils.isEmpty(field.getOutFieldClasskey()) || StringUtils.isEmpty(field.getOutFieldFieldkey())) {
+                continue;
+            }
             if ("2".equals(field.getFieldType())) {
                 fieldValueService.removeByFieldId(field.getId());
                 List<TDictMapDO> dictMapDOS = dictMapService.queryByCode(field.getInnerFieldKey());

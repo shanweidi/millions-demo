@@ -95,12 +95,48 @@ public class SyncEmployeeJob extends HengdianJob {
             //todo 组装json
             JsonObject employee = new JsonObject();
             for (TMapFieldDO field : fields) {
-                if (objectFields.contains(field.getOutTab())) {
-                    JsonObject fieldObj = new JsonObject();
+                List<Map<String, Object>> ncEntity = lruCache.getUnchecked(buildCacheKey(field.getInnerTableName(), stfSeqDO.getPkPsndoc()));
+                if (objectFields.contains(field.getOutTab())) {//ncEntity是单元素集合
+                    if (employee.has(field.getOutTab())) {
+                        JsonObject existObj = employee.getAsJsonObject(field.getOutTab());
+                        if (field.getOutField() != null) {//非自定义字段
+                            existObj.addProperty(field.getOutField(),ncEntity.get(0).get(field.getInnerField()).toString());
+                        } else {
+                            JsonObject customerElement = new JsonObject();
+                            customerElement.addProperty("classKey",field.getOutFieldClasskey());
+                            customerElement.addProperty("fieldKey",field.getOutFieldFieldkey());
+                            customerElement.addProperty("fieldValue",ncEntity.get(0).get(field.getInnerField()).toString());
+                            if (existObj.has("customerFieldInfoList")) {
+                                existObj.getAsJsonArray("customerFieldInfoList").add(customerElement);
+                            } else {
+                                JsonArray customerFieldInfoList = new JsonArray();
+                                customerFieldInfoList.add(customerElement);
+                                existObj.add("customerFieldInfoList",customerFieldInfoList);
+                            }
+                        }
+                    } else {
+                        JsonObject fieldObj = new JsonObject();
+                        if (field.getOutField() != null) {//非自定义字段
+                            fieldObj.addProperty(field.getOutField(),ncEntity.get(0).get(field.getInnerField()).toString());
+                        } else {
+                            JsonObject customerElement = new JsonObject();
+                            customerElement.addProperty("classKey",field.getOutFieldClasskey());
+                            customerElement.addProperty("fieldKey",field.getOutFieldFieldkey());
+                            customerElement.addProperty("fieldValue",ncEntity.get(0).get(field.getInnerField()).toString());
+
+                            JsonArray customerFieldInfoList = new JsonArray();
+                            customerFieldInfoList.add(customerElement);
+                            fieldObj.add("customerFieldInfoList",customerFieldInfoList);
+                        }
+                        employee.add(field.getOutTab(),fieldObj);
+                    }
+                } else {//ncEntity可能是多元素集合
+
                 }
             }
             JsonObject element = employee.getAsJsonObject("staffBasicInfo");
             element.addProperty("stfSeq",stfSeqDO.getStfSeq());
+            jsonArray.add(employee);
         }
 
         JsonObject result = new JsonObject();

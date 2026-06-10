@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zhouyu.utils.LocalDateAdapter;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -48,17 +49,22 @@ public class MyApplication {
                 .create();
     }
 
+    @Bean
+    public CommandLineRunner commandRun() {
+        return args -> {
+            Properties properties = System.getProperties();
+            properties.list(System.out);
+
+            Runtime rt = Runtime.getRuntime();
+            String memoryStr = "JVM最大内存：" + rt.maxMemory()/1024/1024 + "m；JVM总内存：" + rt.totalMemory()/1024/1024 + "m；JVM可用内存：" + rt.freeMemory()/1024/1024 +"m";
+            System.out.println(memoryStr);
+            int availableProcessors = Runtime.getRuntime().availableProcessors();
+            String processorsStr = "availableProcessors：" + availableProcessors;
+            System.out.println(processorsStr);
+        };
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(MyApplication.class);
-
-        Properties properties = System.getProperties();
-        properties.list(System.out);
-
-        Runtime rt = Runtime.getRuntime();
-        String memoryStr = "JVM最大内存：" + rt.maxMemory()/1024/1024 + "m；JVM总内存：" + rt.totalMemory()/1024/1024 + "m；JVM可用内存：" + rt.freeMemory()/1024/1024 +"m";
-        System.out.println(memoryStr);
-        int availableProcessors = Runtime.getRuntime().availableProcessors();
-        String processorsStr = "availableProcessors：" + availableProcessors;
-        System.out.println(processorsStr);
     }
 }

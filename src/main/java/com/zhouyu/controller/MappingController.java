@@ -1,9 +1,9 @@
 package com.zhouyu.controller;
 
 import cn.hutool.core.map.MapUtil;
-import com.zhouyu.domain.DeptDO;
 import com.zhouyu.domain.TMapFieldDO;
 import com.zhouyu.domain.TMapFileldValueDO;
+import com.zhouyu.dto.DeptVO;
 import com.zhouyu.dto.MappingDTO;
 import com.zhouyu.dto.Result;
 import com.zhouyu.service.DeptService;
@@ -78,7 +78,7 @@ public class MappingController {
     }
 
     @GetMapping({"/v1/org/list"})
-    public Result<Map<String,List<DeptDO>>> orgList() {
-        return Result.success(Collections.singletonMap("orgList",deptService.all()));
+    public Result<Map<String,List<DeptVO>>> orgList() {
+        return Result.success(Collections.singletonMap("records",deptService.all()));
     }
 }

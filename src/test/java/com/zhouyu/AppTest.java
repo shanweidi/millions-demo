@@ -15,7 +15,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.zhouyu.domain.BdPsndocDO;
-import com.zhouyu.domain.DeptDO;
 import com.zhouyu.domain.TMapFieldDO;
 import com.zhouyu.domain.TMapFileldValueDO;
 import com.zhouyu.dto.CustomerFieldDTO;
@@ -23,6 +22,7 @@ import com.zhouyu.dto.CustomerFieldResponse;
 import com.zhouyu.dto.EmployeeEditDTO;
 import com.zhouyu.service.BdPsndocService;
 import com.zhouyu.service.DeptService;
+import com.zhouyu.service.TMapFieldService;
 import com.zhouyu.service.TMapFileldValueService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +54,9 @@ public class AppTest {
     TMapFileldValueService tMapFileldValueService;
 
     @Autowired
+    TMapFieldService fieldService;
+
+    @Autowired
     DeptService deptService;
 
     static final String SQL_TEMPLATE = "select * from bd_psndoc where ENABLESTATE = ? AND CREATIONTIME > ?";
@@ -75,17 +78,6 @@ public class AppTest {
                 });
     }
 
-    @Test
-    public void testOracle() {
-        List<DeptDO> list = deptService.all();
-        list.stream().filter(e -> e.getParentOrgCode() == null)
-                .findFirst()
-                .ifPresent(e -> e.setParentOrgCode(""));
-        Optional<DeptDO> any = list.stream().filter(e -> e.getParentOrgCode() == null).findAny();
-        Optional<DeptDO> any2 = list.stream().filter(e -> "".equals(e.getParentOrgCode())).findAny();
-        System.out.println(list);
-
-    }
 
     @Autowired
     Gson gson;
@@ -127,13 +119,16 @@ public class AppTest {
 
     @Test
     public void testCache() {
-        String key = "bd_psndoc:0001H5100000000BCDLE";
-        for (int i = 0; i < 10; i++) {
+        List<TMapFieldDO> fields = fieldService.list(Wrappers.<TMapFieldDO>lambdaQuery()
+                .eq(TMapFieldDO::getIsDelete, 0)
+                .eq(TMapFieldDO::getInnerTableName, "hi_psndoc_work")
+                .eq(TMapFieldDO::getNeedSync, 1));
+        for (TMapFieldDO field : fields) {
+            String key = "hi_psndoc_work:0001H5100000000BCDLE";
             List<Map<String, Object>> value = cache.getUnchecked(key);
-            if (i == 9) {
-                System.out.println(value);
-            }
+            System.out.println(value);
         }
+
     }
 
     @Value("${xft.field-url}")
@@ -212,5 +207,13 @@ public class AppTest {
             System.out.println("error");
         }
     }
+
+    //同步岗位
+    @Test
+    public void testSyncPost() {}
+
+    //同步职务
+    @Test
+    public void testSyncJob() {}
 
 }
