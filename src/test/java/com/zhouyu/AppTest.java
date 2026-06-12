@@ -208,12 +208,187 @@ public class AppTest {
         }
     }
 
+    private void sendSyncHttp(List<TMapFileldValueDO> fieldValues,String classKey,String fieldKey) {
+        long timestamp = Instant.now().toEpochMilli();
+        BaseReqInf baseReqInf = new BaseReqInf(appId, secret);
+        Map<String, Object> queryParam = new TreeMap<>();
+        queryParam.put("CSCAPPUID", appId);
+        queryParam.put("CSCPRJCOD",companyId);
+        queryParam.put("CSCREQTIM",timestamp);
+
+        CustomerFieldDTO dto = new CustomerFieldDTO();
+        dto.setClassKey(classKey);
+        dto.setFieldKey(fieldKey);
+        dto.setFieldType("23");
+        List<CustomerFieldDTO.OptionValue> values = fieldValues.stream().map(e -> {
+            CustomerFieldDTO.OptionValue optionValue = new CustomerFieldDTO.OptionValue();
+            optionValue.setOptionCode(e.getInnerValue());
+            optionValue.setOptionValue(e.getInnerValueDesc());
+            optionValue.setOptionSeq(e.getId().toString());
+            return optionValue;
+        }).collect(Collectors.toList());
+        dto.setOptionValueDtoList(values);
+
+        String jsonBody = gson.toJson(dto);
+
+        //加密和解密密文的key
+        String key = secret.substring(0, 32);
+        String digest;
+        try {
+            String secretMsg = Sm4Util.encryptEcb(key, jsonBody);
+            Map<String, String> newRequestBodyMap = new HashMap<>();
+            //secretMsg这个名称固定
+            newRequestBodyMap.put("secretMsg", secretMsg);
+            digest = gson.toJson(newRequestBodyMap);
+        } catch (Exception e) {
+            return;
+        }
+
+        try {
+            HttpResponseData postResult = XftOpenApiReqClient.doCommonPostReq(baseReqInf, fieldUrl, queryParam, digest);
+            String responseData = postResult.getBody();
+            responseData = Sm4Util.decryptEcb(key, responseData);
+            CustomerFieldResponse response = gson.fromJson(responseData, CustomerFieldResponse.class);
+            if ("SUC0000".equals(response.getReturnCode()) && "".equals(response.getBody().getErrorMessage())) {
+                //同步成功
+                System.out.println("SUCCESS!!!!");
+            } else {
+                System.out.println("save customer field business fail:"+responseData);
+            }
+        } catch (Exception e) {
+            System.out.println("error");
+        }
+    }
+
+    @Test
+    public void testSyncJobLevel() {
+        String sql = "select code,name  From om_joblevel a\n" +
+                "where exists (select *from hi_psnjob b  where a.pk_joblevel = b.pk_jobgrade)\n" +
+                " order by  code";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(224L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().filter(e -> !e.get("NAME").toString().contains("锐智九州"))
+                .filter(e -> !e.get("CODE").toString().equals("0905"))
+                .map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(224L);
+            tMapFileldValueDO.setInnerValue((String) e.get("CODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("NAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("CODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100281");
+    }
+    @Test
+    public void testSyncJobType() {
+        String sql = "select jobtypecode,jobtypename  From om_jobtype a\n" +
+                "where exists (select *from hi_psnjob b  where a.pk_jobtype = b.SERIES)\n" +
+                " order by jobtypecode";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(219L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(219L);
+            tMapFileldValueDO.setInnerValue((String) e.get("JOBTYPECODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("JOBTYPENAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("JOBTYPECODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100276");
+    }
+
+    @Test
+    public void testSyncCategory() {
+        String sql = "select code,name from bd_psncl";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(225L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(225L);
+            tMapFileldValueDO.setInnerValue((String) e.get("CODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("NAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("CODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100282");
+    }
+
+    @Test
+    public void testSyncJobRank() {
+        String sql = "select jobrankcode,jobrankname from om_jobrank";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(223L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(223L);
+            tMapFileldValueDO.setInnerValue((String) e.get("JOBRANKCODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("JOBRANKNAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("JOBRANKCODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100280");
+    }
+
     //同步岗位
     @Test
-    public void testSyncPost() {}
+    public void testSyncPost() {
+        String sql = "select postseriescode,postseriesname  from om_postseries";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(221L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(221L);
+            tMapFileldValueDO.setInnerValue((String) e.get("POSTSERIESCODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("POSTSERIESNAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("POSTSERIESCODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100278");
+    }
 
     //同步职务
     @Test
-    public void testSyncJob() {}
+    public void testSyncJob() {
+        String sql = "select distinct jobcode ,jobname  from om_job b \n" +
+                "\twhere enablestate =2  \n" +
+                "\tand exists (select *from hi_psnjob a where \t a.poststat ='Y' and  a.endflag ='N' and a.pk_job = b.pk_job)";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(220L);
+        List<TMapFileldValueDO> fieldValues = maps.stream().map(e -> {
+            TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+            tMapFileldValueDO.setMapFieldId(220L);
+            tMapFileldValueDO.setInnerValue((String) e.get("JOBCODE"));
+            tMapFileldValueDO.setInnerValueDesc((String) e.get("JOBNAME"));
+            tMapFileldValueDO.setOutValue((String) e.get("JOBCODE"));
+            tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+            tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+            return tMapFileldValueDO;
+        }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+
+        sendSyncHttp(fieldValues,"CLS1100056","FLD1100277");
+
+    }
 
 }
