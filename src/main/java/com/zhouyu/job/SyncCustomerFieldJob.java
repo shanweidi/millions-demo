@@ -64,9 +64,10 @@ public class SyncCustomerFieldJob extends HengdianJob {
     protected void scheduleCronTask() {
         logger.info("=========自定义字段同步开始============");
         List<TMapFieldDO> fields = fieldService.list(Wrappers.<TMapFieldDO>lambdaQuery().eq(TMapFieldDO::getIsDelete, 0)
-                .eq(TMapFieldDO::getNeedSync,1).in(TMapFieldDO::getFieldType, "2","3")
+                .eq(TMapFieldDO::getOutFieldType,23).in(TMapFieldDO::getFieldType, "2","3")
                 .eq(TMapFieldDO::getIsSync, 0));
         if (fields.isEmpty()) {
+            logger.info("=========自定义字段同步结束============");
             return;
         }
         for (TMapFieldDO field : fields) {

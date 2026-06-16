@@ -144,7 +144,32 @@ public class AppTest {
     private String secret;
 
     @Test
-    public void testSync() {
+    public void testSync137() {
+        String sql = "select t1.code,t1.name  \n" +
+                "from bd_defdoc t1 left join bd_defdoclist t2 on t1.pk_defdoclist=t2.pk_defdoclist \n" +
+                "where t1.dr=0 and t1.enablestate=2 and t2.dr=0 and t2.code='HR019_0xx'  \n" +
+                "and exists (select *from hi_psndoc_title  t where t.pk_techposttitle = t1.pk_defdoc)\n" +
+                "order by t1.code";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        System.out.println(maps);
+        int affect = tMapFileldValueService.removeByFieldId(137L);
+        List<TMapFileldValueDO> fieldValues = maps.stream()
+                .map(e -> {
+                    TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
+                    tMapFileldValueDO.setMapFieldId(137L);
+                    tMapFileldValueDO.setInnerValue((String) e.get("CODE"));
+                    tMapFileldValueDO.setInnerValueDesc((String) e.get("NAME"));
+                    tMapFileldValueDO.setOutValue((String) e.get("CODE"));
+                    tMapFileldValueDO.setCreateTime(LocalDateTime.now().format(formatter));
+                    tMapFileldValueDO.setUpdateTime(LocalDateTime.now().format(formatter));
+                    return tMapFileldValueDO;
+                }).collect(Collectors.toList());
+        tMapFileldValueService.saveBatch(fieldValues);
+        sendSyncHttp(fieldValues,"S09TTITLE","FLD1100112");
+    }
+
+    @Test
+    public void testSync46() {
         String sql = "select t1.code,t1.name  \n" +
                 "from bd_defdoc t1 left join bd_defdoclist t2 on t1.pk_defdoclist=t2.pk_defdoclist \n" +
                 "where t1.dr=0 and t1.enablestate=2 and t2.dr=0 and t2.code='HR010_0xx'  \n" +
