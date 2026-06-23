@@ -1,5 +1,6 @@
 package com.zhouyu.job;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.cmb.xft.open.api.BaseReqInf;
 import com.cmb.xft.open.api.HttpResponseData;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -70,8 +70,15 @@ public class SyncCustomerFieldJob extends HengdianJob {
             logger.info("=========自定义字段同步结束============");
             return;
         }
+        long timestamp = Instant.now().toEpochMilli();
+        BaseReqInf baseReqInf = new BaseReqInf(appId, secret);
+        Map<String, Object> queryParam = new TreeMap<>();
+        queryParam.put("CSCAPPUID", appId);
+        queryParam.put("CSCPRJCOD",companyId);
+        queryParam.put("CSCREQTIM",timestamp);
+
         for (TMapFieldDO field : fields) {
-            if (StringUtils.isEmpty(field.getOutFieldClasskey()) || StringUtils.isEmpty(field.getOutFieldFieldkey())) {
+            if (StrUtil.isEmpty(field.getOutFieldClasskey()) || StrUtil.isEmpty(field.getOutFieldFieldkey())) {
                 continue;
             }
             if ("2".equals(field.getFieldType())) {
@@ -89,8 +96,12 @@ public class SyncCustomerFieldJob extends HengdianJob {
                 }).collect(Collectors.toList());
                 fieldValueService.saveBatch(fieldValues);
             } else if ("3".equals(field.getFieldType())) {
-                fieldValueService.removeByFieldId(field.getId());
                 List<Map<String, String>> mappingList = fieldValueService.selectMapsByCode(field.getInnerFieldKey());
+                if (mappingList.size() >= 1000) {
+                    logger.warn("SyncCustomerFieldJob fieldValues size over 999,id:{}",field.getId());
+                    continue;
+                }
+                fieldValueService.removeByFieldId(field.getId());
                 List<TMapFileldValueDO> fieldValues = mappingList.stream().map(e -> {
                     TMapFileldValueDO tMapFileldValueDO = new TMapFileldValueDO();
                     tMapFileldValueDO.setMapFieldId(field.getId());
@@ -103,18 +114,7 @@ public class SyncCustomerFieldJob extends HengdianJob {
                 }).collect(Collectors.toList());
                 fieldValueService.saveBatch(fieldValues);
             }
-        }
-        long timestamp = Instant.now().toEpochMilli();
-        BaseReqInf baseReqInf = new BaseReqInf(appId, secret);
-        Map<String, Object> queryParam = new TreeMap<>();
-        queryParam.put("CSCAPPUID", appId);
-        queryParam.put("CSCPRJCOD",companyId);
-        queryParam.put("CSCREQTIM",timestamp);
 
-        for (TMapFieldDO field : fields) {
-            if (StringUtils.isEmpty(field.getOutFieldClasskey()) || StringUtils.isEmpty(field.getOutFieldFieldkey())) {
-                continue;
-            }
             CustomerFieldDTO dto = new CustomerFieldDTO();
             dto.setClassKey(field.getOutFieldClasskey());
             dto.setFieldKey(field.getOutFieldFieldkey());
@@ -157,12 +157,13 @@ public class SyncCustomerFieldJob extends HengdianJob {
                     fieldService.update(Wrappers.<TMapFieldDO>lambdaUpdate().eq(TMapFieldDO::getId,field.getId())
                             .set(TMapFieldDO::getIsSync,1));
                 } else {
-                    logger.warn("save customer field business fail:"+responseData);
+                    logger.warn("save customer field {} business fail:{}",field.getId(),responseData);
                 }
             } catch (Exception e) {
                 logger.error("save customer field http call error:",e);
             }
         }
+
         logger.info("=========自定义字段同步结束============");
     }
 
