@@ -20,4 +20,10 @@ public class TMapFieldService extends ServiceImpl<TMapFieldMapper, TMapFieldDO> 
         return this.baseMapper.selectList(Wrappers.<TMapFieldDO>lambdaQuery()
                 .eq(TMapFieldDO::getIsDelete,0));
     }
+
+    public Boolean operateSync(Long id, String sql) {
+        TMapFieldDO field = this.getById(id);
+        //todo
+        return Boolean.FALSE;
+    }
 }

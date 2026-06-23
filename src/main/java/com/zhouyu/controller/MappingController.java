@@ -81,4 +81,9 @@ public class MappingController {
     public Result<Map<String,List<DeptVO>>> orgList() {
         return Result.success(Collections.singletonMap("records",deptService.all()));
     }
+
+    @PostMapping({"/v1/sync/customer/field/{id}"})
+    public Result<Boolean> devSync(@PathVariable("id") Long id,@RequestBody String sql) {
+        return Result.success(fieldService.operateSync(id,sql));
+    }
 }

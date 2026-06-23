@@ -124,9 +124,11 @@ public class AppTest {
                 .eq(TMapFieldDO::getInnerTableName, "hi_psndoc_work")
                 .eq(TMapFieldDO::getNeedSync, 1));
         for (TMapFieldDO field : fields) {
-            String key = "hi_psndoc_work:0001H5100000000BCDLE";
-            List<Map<String, Object>> value = cache.getUnchecked(key);
-            System.out.println(value);
+            String key = "hi_psndoc_work:0001ZZ1000000002D914";
+            List<Map<String, Object>> ncEntity = cache.getUnchecked(key);
+            for (Map<String, Object> row : ncEntity) {
+                
+            }
         }
 
     }

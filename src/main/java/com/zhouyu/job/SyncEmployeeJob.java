@@ -38,7 +38,7 @@ public class SyncEmployeeJob extends HengdianJob {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncEmployeeJob.class);
 
-    private Set<String> objectFields = new HashSet<>(Arrays.asList("staffBasicInfo","staffHrmInfo","staffWagesAndSocialSecurityInfo","staffEmergencyContact","StaffGroupServiceInfo","staffTaxBasicInfo"));
+    private List<String> objectFields = Arrays.asList("staffBasicInfo","staffHrmInfo","staffWagesAndSocialSecurityInfo","staffEmergencyContact","StaffGroupServiceInfo","staffTaxBasicInfo");
     @Resource
     private TStfSeqService service;
 
