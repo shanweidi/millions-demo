@@ -1,5 +1,6 @@
 package com.zhouyu.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhouyu.domain.DeptDO;
 import com.zhouyu.dto.DeptVO;
@@ -29,5 +30,15 @@ public class DeptService extends ServiceImpl<DeptMapper, DeptDO> {
             vo.setParentOrgCode(e.getParentOrgCode() == null ? "" : e.getParentOrgCode());
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    public String getCodeByDeptId(String deptId) {
+        return this.baseMapper.selectOne(Wrappers.<DeptDO>lambdaQuery()
+                .eq(DeptDO::getDeptNumber,deptId)).getCode();
+    }
+
+    public String getCodeByOrgId(String orgId) {
+        return this.baseMapper.selectOne(Wrappers.<DeptDO>lambdaQuery()
+                .eq(DeptDO::getOrgNumber,orgId).eq(DeptDO::getType,"S")).getCode();
     }
 }

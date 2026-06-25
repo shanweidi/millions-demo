@@ -31,6 +31,8 @@ public class DeptDO implements Serializable {
     @TableField("CODE")
     private String code;
 
+    @TableField("DEPTNUMBER")
     private String deptNumber;
+    @TableField("ORGNUMBER")
     private String orgNumber;
 }

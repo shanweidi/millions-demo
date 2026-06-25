@@ -123,6 +123,7 @@ public class AppTest {
                 .eq(TMapFieldDO::getIsDelete, 0)
                 .eq(TMapFieldDO::getInnerTableName, "hi_psndoc_work")
                 .eq(TMapFieldDO::getNeedSync, 1));
+        JsonObject employee = new JsonObject();
         for (TMapFieldDO field : fields) {
             String key = "hi_psndoc_work:0001ZZ1000000002D914";
             List<Map<String, Object>> ncEntity = cache.getUnchecked(key);
