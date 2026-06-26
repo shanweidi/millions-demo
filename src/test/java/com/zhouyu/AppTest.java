@@ -105,16 +105,61 @@ public class AppTest {
 
     @Test
     public void testEncrypt() {
-        //SecretKey secretKey = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue());
-        //byte[] bytes = secretKey.getEncoded();
         String secret = "5460f088209068b3";
         byte[] bytes = secret.getBytes();
 
         AES aes = SecureUtil.aes(bytes);
-        String sss = aes.encryptBase64("{\"batchId\":\"1100001702996\",\"items\":[{\"pk_psndoc_code\":\"20042168\",\"approve_state\":\"2\"}]}");
+        String sss = aes.encryptBase64("<?xml version=\"1.0\" encoding='UTF-8'?>\n" +
+                "<ufinterface account=\"001\" billtype=\"regapply\" filename=\"\" groupcode=\"G07\" isexchange=\"Y\" replace=\"Y\" roottag=\"\" sender=\"xft\">\n" +
+                "    <bill id=\"\">\n" +
+                "        <billhead>\n" +
+                "            <pk_billtype>6111</pk_billtype>\n" +
+                "            <regulardate>2026-06-30</regulardate>\n" +
+                "            <billmaker>hgwxl</billmaker>\n" +
+                "            <apply_date>2026-06-26</apply_date>\n" +
+                "            <approve_note>测试审批寄语</approve_note>\n" +
+                "            <memo>测试入职说明</memo>\n" +
+                "            <pk_group>G07</pk_group>\n" +
+                "            <pk_org>0001A11000000036R13R</pk_org>\n" +
+                "            <pk_psndoc>20042177</pk_psndoc>\n" +
+                "            <ishrssbill>N</ishrssbill>\n" +
+                "            <probation_type>1</probation_type>\n" +
+                "            <trialresult>1</trialresult>\n" +
+                "            <trialdelaydate></trialdelaydate>\n" +
+                "            <oldpk_org>0001A11000000036R13R</oldpk_org>\n" +
+                "            <newpk_org>0001A11000000036R13R</newpk_org>\n" +
+                "            <newpk_dept>1008AA10000000000E5G</newpk_dept>\n" +
+                "            <newseries>10701</newseries>\n" +
+                "            <newpk_job>10114</newpk_job>\n" +
+                "            <newpk_postseries>01</newpk_postseries>\n" +
+                "            <newpk_post>PB00000030</newpk_post>\n" +
+                "            <newpk_jobrank>M8</newpk_jobrank>\n" +
+                "            <newpk_jobgrade>0105</newpk_jobgrade>\n" +
+                "            <newpk_psncl>01</newpk_psncl>\n" +
+                "            <newpk_job_type></newpk_job_type>\n" +
+                "            <newjobmode>1</newjobmode>\n" +
+                "            <newdeposemode>1</newdeposemode>\n" +
+                "            <newoccupation></newoccupation>\n" +
+                "            <newworktype></newworktype>\n" +
+                "            <newpoststat>Y</newpoststat>\n" +
+                "            <newjobglbdef3>05</newjobglbdef3>\n" +
+                "            <newjobglbdef4>05</newjobglbdef4>\n" +
+                "            <newjobglbdef7>03</newjobglbdef7>\n" +
+                "            <newjobglbdef14></newjobglbdef14>\n" +
+                "            <creator>hgwxl</creator>\n" +
+                "            <creationtime></creationtime>\n" +
+                "            <modifier></modifier>\n" +
+                "            <modifiedtime></modifiedtime>\n" +
+                "            <pk_psnjob></pk_psnjob>\n" +
+                "            <assgid>0</assgid>\n" +
+                "            <begin_date></begin_date>\n" +
+                "            <end_date>2026-06-27</end_date>\n" +
+                "            <isneedfile></isneedfile>\n" +
+                "            <ifsynwork>Y</ifsynwork>\n" +
+                "        </billhead>\n" +
+                "    </bill>\n" +
+                "</ufinterface>");
         System.out.println(sss);
-        String result = aes.decryptStr(sss);
-        System.out.println(result);
     }
 
     @Test

@@ -39,6 +39,6 @@ public class DeptService extends ServiceImpl<DeptMapper, DeptDO> {
 
     public String getCodeByOrgId(String orgId) {
         return this.baseMapper.selectOne(Wrappers.<DeptDO>lambdaQuery()
-                .eq(DeptDO::getOrgNumber,orgId).eq(DeptDO::getType,"S")).getCode();
+                .eq(DeptDO::getOrgNumber,orgId).ne(DeptDO::getType,"D")).getCode();
     }
 }
