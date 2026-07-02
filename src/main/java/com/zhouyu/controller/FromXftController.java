@@ -99,6 +99,14 @@ public class FromXftController {
             String orgCode = deptService.getCodeByOrgId(snapshot.get("oldpk_org").toString());
             snapshot.put("oldpk_org",orgCode);
         }
+        if (snapshot.containsKey("pk_hi_org")) {
+            String orgCode = deptService.getCodeByOrgId(snapshot.get("pk_hi_org").toString());
+            snapshot.put("pk_hi_org",orgCode);
+        }
+        if (snapshot.containsKey("pk_hrcm_org")) {
+            String orgCode = deptService.getCodeByOrgId(snapshot.get("pk_hrcm_org").toString());
+            snapshot.put("pk_hrcm_org",orgCode);
+        }
         String deptCode = deptService.getCodeByDeptId(snapshot.get("newpk_dept").toString());
         String[] split = deptCode.split("_");
         snapshot.put("newpk_org",split[0]);

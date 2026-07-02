@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.zhouyu.domain.TMapFieldDO;
 import com.zhouyu.domain.TStfSeqDO;
 import com.zhouyu.service.TMapFieldService;
+import com.zhouyu.service.TMapFileldValueService;
 import com.zhouyu.service.TStfSeqService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ public class SyncEmployeeJob extends HengdianJob {
 
     @Resource
     private JdbcTemplate jdbcTemplate;
+
+    @Resource
+    TMapFileldValueService tMapFileldValueService;
 
     @Value("${xft.app-id}")
     private String appId;
@@ -94,8 +98,13 @@ public class SyncEmployeeJob extends HengdianJob {
         for (TStfSeqDO stfSeqDO : needSync) {
             //todo 组装json
             JsonObject employee = new JsonObject();
+            employee.add("customerFieldInfoList",new JsonArray());
             for (TMapFieldDO field : fields) {
                 List<Map<String, Object>> ncEntity = lruCache.getUnchecked(buildCacheKey(field.getInnerTableName(), stfSeqDO.getPkPsndoc()));
+                if ("customerFieldInfoList".equals(field.getOutTab())) {
+                    //todo 单独处理
+                    continue;
+                }
                 if (objectFields.contains(field.getOutTab())) {//ncEntity是单元素集合
                     if (employee.has(field.getOutTab())) {
                         JsonObject existObj = employee.getAsJsonObject(field.getOutTab());
@@ -182,18 +191,15 @@ public class SyncEmployeeJob extends HengdianJob {
         return table.trim() + ":" + id;
     }
 
-
-//      private List<EmployeeDTO> convert(List<BdPsndocDO> needAdd) {
-//        return needAdd.stream().filter(e -> StringUtils.hasLength(e.getName())).map(entity -> {
-//            EmployeeDTO.HrInfo hrInfo = new EmployeeDTO.HrInfo();
-//            hrInfo.setEntryDate(LocalDate.parse(entity.getGlbdef5(), formatter));
-//
-//            EmployeeDTO.BasicInfo basicInfo = EmployeeDTO.BasicInfo.builder().stfNumber(entity.getCode()).stfName(entity.getName())
-//                    .mobileNumber(entity.getMobile()).certificateType("A").certificateNumber(entity.getId())
-//                    .birthday(LocalDate.parse(entity.getBirthdate(), formatter))
-//                    .sex(Objects.equals(entity.getSex(), 1) ? "0" : "1")
-//                    .build();
-//            return new EmployeeDTO(basicInfo,hrInfo);
-//        }).collect(Collectors.toList());
-//    }
+    private String translate(String innerValue,String outField,Long fieldId){
+        switch (outField) {
+            case "certificateType" :
+                String innerCode = jdbcTemplate.queryForObject("select CODE from BD_PSNIDTYPE where PK_IDENTITYPE = ?", String.class, innerValue);
+                return tMapFileldValueService.queryOutValue(fieldId,innerCode);
+            case "sex" :
+                return innerValue.equals("1") ? "0" : "1";
+            default:
+                throw new RuntimeException("该字段暂不支持翻译:"+fieldId);
+        }
+    }
 }

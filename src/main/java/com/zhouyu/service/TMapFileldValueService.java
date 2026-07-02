@@ -22,6 +22,12 @@ public class TMapFileldValueService extends ServiceImpl<TMapFileldValueMapper, T
                 .eq(TMapFileldValueDO::getMapFieldId, fieldId));
     }
 
+    public String queryOutValue(Long fieldId,Object inner) {
+        return this.baseMapper.selectOne(Wrappers.<TMapFileldValueDO>lambdaQuery()
+                .eq(TMapFileldValueDO::getMapFieldId, fieldId)
+                .eq(TMapFileldValueDO::getInnerValue,inner)).getOutValue();
+    }
+
     public List<Map<String, String>> selectMapsByCode(String code) {
         return this.baseMapper.selectMapsByCode(code);
     }

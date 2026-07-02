@@ -5,6 +5,7 @@ xft:
   edit-url: https://api.cmbchina.com/hrm/hrm2/xft-employeeprofile/employee/staff-general-api/modify-staff
   field-url: https://api.cmbchina.com/hrm/hrm2/xft-employeeprofile/openapi/employee/setting-api/customer-field/customer-option/api-batch-save
   query-test-url: https://api.cmbchina.com/hrm/hrm2/xft-employeeprofile/openapi/employee/setting-api/find-customer-field
+  org-url: https://api.cmbchina.com/ORG/orgqry/xft-service-organization/org/v1/get/page
   app-id: 75fde28c-31ba-4215-8495-9482f61b05fc
   company-id: AAB67641
   authority-secret: 4674e02e69db61d984be5df891fa82185fd390a910751d179a73ba98d2e97bab
